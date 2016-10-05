@@ -1,0 +1,34 @@
+
+public class DataExchange extends Thread{
+
+	private boolean obstacleDetected = false,stop = false;
+		
+	private float color = 0;
+	
+	public DataExchange(){
+		
+	}
+
+	public void setObstacleDetected(boolean status){
+		obstacleDetected = status;
+	}
+	public boolean getObstacleDetected(){
+		return obstacleDetected;
+	}
+	
+	public void setColor(float newColor){
+		color = newColor;
+	}
+	
+	public float getColor(){
+		return color;
+	}
+	
+	public void setStop(boolean bool){
+		stop = bool;
+	}
+	
+	public boolean getStop(){
+		return stop;
+	}
+}
