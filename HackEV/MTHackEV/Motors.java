@@ -23,7 +23,7 @@ public class Motors extends Thread{
 		
 	}
 	
-	private void FollowLine(int lMotor, int rMotor){
+	private void FollowLine(int lMotor, int rMotor){ //basically this is the function that moves the robot, robot only turns right now
 		
 		if(lMotor > 0){
 			leftMotor.controlMotor(lMotor,1);
