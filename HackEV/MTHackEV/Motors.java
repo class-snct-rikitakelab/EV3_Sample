@@ -1,9 +1,11 @@
+import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.Motor;
 import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.TachoMotorPort;
 import lejos.robotics.RegulatedMotor;
 import lejos.utility.Delay;
 
+// mitä pidempää ollu valkosella / mustalla nii sitä enemmän kääntyy vastaa
 
 public class Motors extends Thread{
 	
@@ -11,35 +13,26 @@ public class Motors extends Thread{
 	TachoMotorPort leftMotor = MotorPort.C.open(TachoMotorPort.class);
 	TachoMotorPort rightMotor = MotorPort.B.open(TachoMotorPort.class);
 	
-	/*
-	static RegulatedMotor leftMotor = Motor.C;
-	static RegulatedMotor rightMotor = Motor.B;
-	static RegulatedMotor middleMotor = Motor.A;
-	*/
+	TachoMotorPort middleMotor = MotorPort.A.open(TachoMotorPort.class);
 	
+	double black = 0.1;
 	
 	public Motors(DataExchange DE){
 		DEObj = DE;
-		
 	}
 	
-	private void FollowLine(int lMotor, int rMotor){ //basically this is the function that moves the robot, robot only turns right now
+	
+	private void FollowLine(int lMotor, int rMotor){
 		
-		if(lMotor > 0){
+		if(lMotor > 0 || lMotor > 0){
 			leftMotor.controlMotor(lMotor,1);
-		}
-		else if(lMotor > 0){
-			leftMotor.controlMotor(lMotor, 1);
 		}
 		else{
 			leftMotor.controlMotor(0, 0);
 		}
 		
 		
-		if(rMotor > 0){
-			rightMotor.controlMotor(rMotor, 1);
-		}
-		else if(rMotor < 0){
+		if(rMotor > 0 || rMotor < 0){
 			rightMotor.controlMotor(rMotor, 1);
 		}
 		else{
@@ -49,8 +42,39 @@ public class Motors extends Thread{
 		Delay.msDelay(50);
 
 	}
+
+	
+	private void Forward(double value){
+		
+		int power = (int)(value * 300);
+		
+		LCD.drawInt(power, 0, 5);
+		LCD.refresh();
+		
+		if(value < 0){
+			rightMotor.controlMotor(power/2,1);
+			leftMotor.controlMotor(power,1);
+		}
+		else if(value > 0){
+			rightMotor.controlMotor(power, 1);
+			leftMotor.controlMotor(power/2, 1);
+		}
+		else{
+			rightMotor.controlMotor(0, 0);
+			leftMotor.controlMotor(0, 0);
+		}
+		
+	}
 	
 	public void run(){
+		
+		// musta 0.06 , valk = 0.6
+		
+		double white = 0.6, black = 0.06;
+		
+		double midpoint = (white - black ) / 2 + black;
+		int kp = 1;
+		double correction=0,value = 0;
 		
 
 		rightMotor.controlMotor(0, 0);
@@ -59,27 +83,29 @@ public class Motors extends Thread{
 		leftMotor.controlMotor(0, 0); // power , mode
 		leftMotor.resetTachoCount();
 		
+		middleMotor.controlMotor(0, 0);
+		middleMotor.resetTachoCount();
+		
+		middleMotor.controlMotor(15, 1);
+		
+		Delay.msDelay(500);
+		
+		middleMotor.controlMotor(0, 0);
+		
 		while(true){
 			
+			
+			value = DEObj.getColor();
+			correction = kp * ( midpoint - value);
+			Forward(correction);
 			/*
-			leftMotor.controlMotor(40, 1);
-			rightMotor.controlMotor(40, 1);
-			
-			if(leftMotor.getTachoCount() >= 360 && rightMotor.getTachoCount() >= 360){
-				leftMotor.controlMotor(0, 0);
-				rightMotor.controlMotor(0, 0);
-				break;
-			}
-			Delay.msDelay(10);
-			*/
-			
-			if(DEObj.getColor() < 0.1){
-				FollowLine(10,40);
+			if(DEObj.getColor() < black){
+				FollowLine(30,40);
 			}
 			else{
-				FollowLine(40,10);
+				FollowLine(40,30);
 			}
-			
+			*/
 			
 			if(DEObj.getStop()){
 				break;
