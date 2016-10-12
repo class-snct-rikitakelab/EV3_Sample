@@ -15,6 +15,10 @@ public class Main{
 	
 	public static void main(String[] args) {
 		
+		DE = new DataExchange();
+		SObj = new Sensors(DE);
+		MObj = new Motors(DE);
+		
 		float colorValue=0;
 		
 		SensorMode touch = touchSensor.getMode(0);
@@ -23,6 +27,9 @@ public class Main{
 		LCD.drawString("Press", 0, 7);
 		LCD.refresh();
 		
+		MObj.MotorInit();
+
+		
 		while(tValue[0]!=1){
 			touch.fetchSample(tValue, 0);
 		}
@@ -30,12 +37,9 @@ public class Main{
 		LCD.drawString("Started", 0, 7);
 		LCD.refresh();
 		
-		Delay.msDelay(100);
+		Delay.msDelay(500);
 		
 		
-		DE = new DataExchange();
-		SObj = new Sensors(DE);
-		MObj = new Motors(DE);
 		MObj.start();
 		SObj.start();
 
