@@ -23,11 +23,32 @@ public class Main{
 		
 		SensorMode touch = touchSensor.getMode(0);
 		float tValue[] = new float[touch.sampleSize()];
-
-		LCD.drawString("Press", 0, 7);
-		LCD.refresh();
 		
 		MObj.MotorInit();
+		SObj.start();
+		
+		
+		//following is for the calibration
+		while(tValue[0]!=1){
+			LCD.clear();
+			LCD.drawString("set white", 0, 7);
+			LCD.drawInt((int)(100*DE.getColor()),0,5);
+			LCD.refresh();
+			touch.fetchSample(tValue, 0);
+		}
+		MObj.SetWhite();
+		Delay.msDelay(500);
+		tValue[0]=0;
+		while(tValue[0]!=1){
+			LCD.clear();
+			LCD.drawString("set black", 0, 7);
+			LCD.drawInt((int)(100*DE.getColor()),0,5);
+			LCD.refresh();
+			touch.fetchSample(tValue, 0);
+		}
+		MObj.SetBlack();
+		Delay.msDelay(500);
+		
 
 		
 		while(tValue[0]!=1){
@@ -41,7 +62,6 @@ public class Main{
 		
 		
 		MObj.start();
-		SObj.start();
 
 		LCD.clear();
 		tValue[0]=0;
