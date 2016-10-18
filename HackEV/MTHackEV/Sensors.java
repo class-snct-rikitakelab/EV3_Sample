@@ -1,10 +1,23 @@
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3UltrasonicSensor;
+import lejos.robotics.SampleProvider;
+import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.hardware.sensor.SensorMode;
+import lejos.hardware.lcd.LCD;
 import lejos.hardware.port.SensorPort;
 import lejos.utility.Delay;
 
 public class Sensors extends Thread{
+	
+	public EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.S4);
+	public SampleProvider rate;
+	public float[] sampleGyro;
+		
+	private float min = 0.0F;
+	private float max = 1.0F;
+	
+	public float min_api = 0.0F;
+	public float max_api = 1.0F;
 	
 	private DataExchange DEObj;
 	
@@ -18,15 +31,29 @@ public class Sensors extends Thread{
 	
 	public void run(){
 		
+		SensorMode rate = (SensorMode) gyroSensor.getRateMode();
+		
 		SensorMode color = colorSensor.getMode(1);
-
 		float cValue[] = new float[color.sampleSize()];
+		
+		sampleGyro = new float[rate.sampleSize()];
+		gyroSensor.reset();
+		
+		
 		
 		while(true){
 			
 			color.fetchSample(cValue, 0);
+			if(DEObj.GetFollow()){
+				cValue[0]=cValue[0]*(-1);
+			}
+			//DEObj.setColor(cValue[0]);
+			DEObj.setColor(((cValue[0] - min_api)/(max_api - min_api))*(min-max));
 			
-			DEObj.setColor(cValue[0]);
+			rate.fetchSample(sampleGyro, 0);
+			LCD.drawInt((int)(sampleGyro[0]*100), 0,3);
+			LCD.refresh();
+			
 			
 			if(DEObj.getStop()){
 				break;
