@@ -1,7 +1,7 @@
 
 public class DataExchange extends Thread{
 
-	private boolean obstacleDetected = false,stop = false;
+	private boolean obstacleDetected = false,stop = false, followLeftSide = true;
 		
 	private float color = 0;
 	
@@ -30,5 +30,12 @@ public class DataExchange extends Thread{
 	
 	public boolean getStop(){
 		return stop;
+	}
+	
+	public void FollowLeftSide(boolean bool){
+		followLeftSide = bool;
+	}
+	public boolean GetFollow(){
+		return followLeftSide;
 	}
 }
