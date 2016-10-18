@@ -8,16 +8,24 @@ import lejos.utility.Delay;
 
 public class Motors extends Thread{
 	
+	double white = 0.6, black = 0.06;	
+	
 	private DataExchange DEObj;
 	TachoMotorPort leftMotor = MotorPort.C.open(TachoMotorPort.class);
 	TachoMotorPort rightMotor = MotorPort.B.open(TachoMotorPort.class);
 	
 	TachoMotorPort middleMotor = MotorPort.A.open(TachoMotorPort.class);
-	
-	double black = 0.1;
-	
+		
 	public Motors(DataExchange DE){
 		DEObj = DE;
+	}
+	
+	public void SetBlack(){
+		black = DEObj.getColor();
+	}
+	
+	public void SetWhite(){
+		white = DEObj.getColor();
 	}
 
 	public void MotorInit(){
@@ -33,7 +41,7 @@ public class Motors extends Thread{
 		
 		middleMotor.controlMotor(15, 1);
 		
-		Delay.msDelay(400);
+		Delay.msDelay(300);
 		
 		middleMotor.controlMotor(0, 3);
 		
@@ -48,25 +56,34 @@ public class Motors extends Thread{
 		
 	}
 	
+	private void CheckForNewColor(int color){
+		
+		
+		
+	}
+	
 	public void run(){
 		
 		// musta 0.06 , valk = 0.6
 		
-		double white = 0.6, black = 0.06, correction=0,value = 0;
-		double midpoint = (white - black ) / 2 + black,kp = 1.25;
-		int right=0,left=0,forward=40, correctionValue=0;
-		
-		
+		//double white = 0.6, black = 0.06, correction=0,value = 0,kp = 1.2;
+		double correction=0,value = 0,kp = 1.2;
+		double midpoint = (white - black ) / 2 + black;
+		int right=0,left=0,forward=40, turn=0;
 		
 		while(true){
 			
 			
 			value = DEObj.getColor();
 			correction = kp * ( midpoint - value);
-			correctionValue = (int)(correction*100);
+			turn = (int)(correction*100);
 			
-			left = forward - correctionValue;
-			right = forward + correctionValue;
+			left = forward - turn;
+			right = forward + turn;
+			
+			LCD.drawInt((int)(value*100), 0, 4);
+
+			LCD.refresh();
 			
 			Forward(left,right);
 			
