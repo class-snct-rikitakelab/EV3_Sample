@@ -39,18 +39,11 @@ public class Motors extends Thread{
 		middleMotor.controlMotor(0, 0);
 		middleMotor.resetTachoCount();
 		
-		middleMotor.controlMotor(15, 1);
-		
-		Delay.msDelay(300);
-		
-		middleMotor.controlMotor(0, 3);
-		
-		Delay.msDelay(500);
-		
 	}
 	
 	private void Forward(int left, int right){
 		
+
 		rightMotor.controlMotor(right, 1);
 		leftMotor.controlMotor(left, 1);
 		
@@ -66,13 +59,11 @@ public class Motors extends Thread{
 		
 		// musta 0.06 , valk = 0.6
 		
-		//double white = 0.6, black = 0.06, correction=0,value = 0,kp = 1.2;
-		double correction=0,value = 0,kp = 1.2;
+		double correction=0,value = 0,kp = 1.1;
 		double midpoint = (white - black ) / 2 + black;
-		int right=0,left=0,forward=40, turn=0;
+		int right=0,left=0,forward=38, turn=0;
 		
 		while(true){
-			
 			
 			value = DEObj.getColor();
 			correction = kp * ( midpoint - value);
@@ -81,7 +72,7 @@ public class Motors extends Thread{
 			left = forward - turn;
 			right = forward + turn;
 			
-			LCD.drawInt((int)(value*100), 0, 4);
+			LCD.drawString("value "+ (int)(value*100), 0, 4);
 
 			LCD.refresh();
 			
