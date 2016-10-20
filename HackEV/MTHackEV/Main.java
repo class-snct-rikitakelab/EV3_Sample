@@ -24,8 +24,10 @@ public class Main{
 		SensorMode touch = touchSensor.getMode(0);
 		float tValue[] = new float[touch.sampleSize()];
 		
-		MObj.MotorInit();
 		SObj.start();
+		MObj.MotorInit();
+		
+		Delay.msDelay(2000);
 		
 		
 		//following is for the calibration
@@ -70,6 +72,7 @@ public class Main{
 			touch.fetchSample(tValue, 0);
 			colorValue = DE.getColor();
 			LCD.drawString("value: " + colorValue, 1, 1);
+			LCD.drawString("distance" + DE.GetDistance(), 1, 2);
 			Delay.msDelay(10);
 			LCD.refresh();
 		}
