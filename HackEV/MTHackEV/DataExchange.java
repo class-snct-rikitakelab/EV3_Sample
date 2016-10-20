@@ -3,7 +3,7 @@ public class DataExchange extends Thread{
 
 	private boolean obstacleDetected = false,stop = false, followLeftSide = true;
 		
-	private float color = 0;
+	private float color = 0, distance = 0;
 	
 	public DataExchange(){
 		
@@ -22,6 +22,14 @@ public class DataExchange extends Thread{
 	
 	public float getColor(){
 		return color;
+	}
+	
+	public void SetDistance(float newDistance){
+		distance = newDistance;
+	}
+	
+	public float GetDistance(){
+		return distance;
 	}
 	
 	public void setStop(boolean bool){
