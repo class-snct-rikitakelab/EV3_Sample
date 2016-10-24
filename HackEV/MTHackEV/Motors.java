@@ -49,35 +49,37 @@ public class Motors extends Thread{
 		
 	}
 	
-	private void CheckForNewColor(int color){
-		
-		
-		
-	}
 	
 	public void run(){
 		
-		// musta 0.06 , valk = 0.6
+		// must 0.06 , valk = 0.6
 		
 		double correction=0,value = 0,kp = 1.1;
 		double midpoint = (white - black ) / 2 + black;
+		DEObj.SetMiddleColor(midpoint);
 		int right=0,left=0,forward=38, turn=0;
 		
 		while(true){
 			
-			value = DEObj.getColor();
+			value = DEObj.getColor(); //get the color value
+
+			//this allows the machine to go over the white gaps
+			/*
+			if(DEObj.GetTime() > 5000){ 
+				value = midpoint*0.6;
+			}
+			*/
+
+			//calculations for the turn is calculated here
 			correction = kp * ( midpoint - value);
 			turn = (int)(correction*100);
-			
 			left = forward - turn;
 			right = forward + turn;
 			
-			LCD.drawString("value "+ (int)(value*100), 0, 4);
-
-			LCD.refresh();
-			
+			//makes the robot move
 			Forward(left,right);
 			
+			//if button is pressed, this will stop the loop.
 			if(DEObj.getStop()){
 				break;
 			}
