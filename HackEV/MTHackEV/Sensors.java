@@ -48,21 +48,36 @@ public class Sensors extends Thread{
 		
 		while(true){
 			
+			//gets the values from the sensors
 			rate.fetchSample(sampleGyro, 0);
-
 			sonic.fetchSample(sValue,0);
-			
 			color.fetchSample(cValue, 0);
+			
+			//determines which side is followed
 			if(DEObj.GetFollow()){
 				cValue[0]=cValue[0]*(-1);
 			}
 			
-			//DEObj.setColor(cValue[0]);
+			//puts the values to DataExchange class
+			DEObj.AddRate(sampleGyro[0]);
 			DEObj.setColor(((cValue[0] - min_api)/(max_api - min_api))*(min-max));
-			
 			DEObj.SetDistance(sValue[0]);
 			
+			//negates the color value if its negative
+			if(cValue[0] < 0){
+				cValue[0]=cValue[0]*(-1);
+			}
 			
+			//if the robot is on white, will increase the time. Will reset the time if its not
+			if(cValue[0] > (DEObj.GetMiddle() * 1.2) ){
+				DEObj.IncreaseTime();
+			}
+			else{
+				DEObj.ResetTime();
+			}
+			
+			
+			//will stop the loop if touchsensor is pressed
 			if(DEObj.getStop()){
 				break;
 			}
