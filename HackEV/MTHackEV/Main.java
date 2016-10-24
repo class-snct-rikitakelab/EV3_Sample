@@ -13,14 +13,21 @@ public class Main{
 	private static Motors MObj;
 	private static Sensors SObj;
 	
+	static private void WriteToLCD(String text){
+		
+		LCD.clear();
+		LCD.drawString(text, 0, 7);
+		LCD.drawInt((int)(100*DE.getColor()),0,5);
+		LCD.refresh();
+		
+	}
+	
 	public static void main(String[] args) {
 		
 		DE = new DataExchange();
 		SObj = new Sensors(DE);
 		MObj = new Motors(DE);
-		
-		float colorValue=0;
-		
+				
 		SensorMode touch = touchSensor.getMode(0);
 		float tValue[] = new float[touch.sampleSize()];
 		
@@ -32,32 +39,30 @@ public class Main{
 		
 		//following is for the calibration
 		while(tValue[0]!=1){
-			LCD.clear();
-			LCD.drawString("set white", 0, 7);
-			LCD.drawInt((int)(100*DE.getColor()),0,5);
-			LCD.refresh();
+			WriteToLCD("set white");
 			touch.fetchSample(tValue, 0);
 		}
 		MObj.SetWhite();
 		Delay.msDelay(500);
 		tValue[0]=0;
 		while(tValue[0]!=1){
-			LCD.clear();
-			LCD.drawString("set black", 0, 7);
-			LCD.drawInt((int)(100*DE.getColor()),0,5);
-			LCD.refresh();
+			WriteToLCD("set black");
 			touch.fetchSample(tValue, 0);
 		}
 		MObj.SetBlack();
 		Delay.msDelay(500);
 		
 
-		
+		//waits for touch to begin
+		LCD.clear();
+		LCD.drawString("Press to start", 0, 7);
+		LCD.refresh();
+		tValue[0]=0;
 		while(tValue[0]!=1){
 			touch.fetchSample(tValue, 0);
 		}
 		
-		LCD.drawString("Started", 0, 7);
+		LCD.drawString("Started  ", 0, 7);
 		LCD.refresh();
 		
 		Delay.msDelay(500);
@@ -66,16 +71,20 @@ public class Main{
 		MObj.start();
 
 		LCD.clear();
+		
+		//will print information to the screen and if touch is presesd, loop will end and everything will stop
 		tValue[0]=0;
-
 		while(tValue[0]!=1){
 			touch.fetchSample(tValue, 0);
-			colorValue = DE.getColor();
-			LCD.drawString("value: " + colorValue, 1, 1);
+			LCD.drawString("value: " + DE.getColor(), 1, 1); //value used by motors is value * 100
 			LCD.drawString("distance" + DE.GetDistance(), 1, 2);
+			//LCD.drawString("rate = " + DE.GetRate(), 1, 3);
+			LCD.drawString("time = " + DE.GetTime(), 1, 3);
 			Delay.msDelay(10);
 			LCD.refresh();
 		}
+		
+		//finishing sequence
 		LCD.drawString("Finished", 0, 7);
 		LCD.refresh();
 		DE.setStop(true);
