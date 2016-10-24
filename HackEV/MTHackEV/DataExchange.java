@@ -3,7 +3,9 @@ public class DataExchange extends Thread{
 
 	private boolean obstacleDetected = false,stop = false, followLeftSide = true;
 		
-	private float color = 0, distance = 0;
+	private float color = 0, distance = 0, rate=0, middleColor = 0;
+	
+	private int time = 0;
 	
 	public DataExchange(){
 		
@@ -45,5 +47,33 @@ public class DataExchange extends Thread{
 	}
 	public boolean GetFollow(){
 		return followLeftSide;
+	}
+	
+	public void AddRate(float newRate){
+		rate = rate + newRate;
+	}
+	
+	public float GetRate(){
+		return rate;
+	}
+	
+	public void IncreaseTime(){
+		time++;
+	}
+	
+	public int GetTime(){
+		return time;
+	}
+	
+	public void ResetTime(){
+		time = 0;
+	}
+	
+	public void SetMiddleColor(double newMiddle){
+		middleColor = (float)newMiddle;
+	}
+	
+	public float GetMiddle(){
+		return middleColor;
 	}
 }
