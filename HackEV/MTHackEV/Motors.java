@@ -42,11 +42,8 @@ public class Motors extends Thread{
 	}
 	
 	private void Forward(int left, int right){
-		
-
 		rightMotor.controlMotor(right, 1);
 		leftMotor.controlMotor(left, 1);
-		
 	}
 	
 	
@@ -57,27 +54,64 @@ public class Motors extends Thread{
 		double correction=0,value = 0,kp = 1.1;
 		double midpoint = (white - black ) / 2 + black;
 		DEObj.SetMiddleColor(midpoint);
-		int right=0,left=0,forward=38, turn=0;
+		int right=0,left=0,forward=38, turn=0, stage=1;
+		
+		DEObj.ResetTime(); //to make sure that there is no time counted
 		
 		while(true){
 			
 			value = DEObj.getColor(); //get the color value
-
-			//this allows the machine to go over the white gaps
-			/*
-			if(DEObj.GetTime() > 5000){ 
-				value = midpoint*0.6;
-			}
-			*/
-
-			//calculations for the turn is calculated here
-			correction = kp * ( midpoint - value);
-			turn = (int)(correction*100);
-			left = forward - turn;
-			right = forward + turn;
 			
+			switch(stage){
+			
+			//will follow the line and continue trying to find it unless little while has passed on white.
+			case 1:
+				//this moves code to stage 2 if only white is detected for a while
+				if(DEObj.GetTime() > 5000 && DEObj.GetFollow()){ 
+					stage=2;
+				}
+				
+				//calculations for the turn is calculated here
+				correction = kp * ( midpoint - value);
+				turn = (int)(correction*100);
+				left = forward - turn;
+				right = forward + turn;
+				break;
+				
+				// will search for non-white line
+			case 2:
+				//if no longer on only white, will go to stage 3
+				if(value < (DEObj.GetMiddle() * 1.2)){
+					stage = 3;
+				}
+				//starts turning to left
+				value = midpoint*0.7;
+				
+				//calculations for the turn is calculated here
+				correction = kp * ( midpoint - value);
+				turn = (int)(correction*100);
+				left = forward - turn;
+				right = forward + turn;
+				break;
+				
+				// only stops it for a little while
+			case 3:
+				left = 0;
+				right = 0;
+				Delay.msDelay(500);
+				stage = 4;
+			
+			//will try to find the next color.
+			case 4:
+				
+				break;
+			}
+
+			LCD.drawString("stage = " + stage, 1, 6);
+			LCD.refresh();
 			//makes the robot move
 			Forward(left,right);
+
 			
 			//if button is pressed, this will stop the loop.
 			if(DEObj.getStop()){
