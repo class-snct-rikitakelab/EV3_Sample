@@ -25,7 +25,9 @@ public class Main{
 	public static void main(String[] args) {
 		
 		DE = new DataExchange();
+		Delay.msDelay(200);
 		SObj = new Sensors(DE);
+		Delay.msDelay(200);
 		MObj = new Motors(DE);
 				
 		SensorMode touch = touchSensor.getMode(0);
@@ -80,6 +82,13 @@ public class Main{
 			LCD.drawString("distance" + DE.GetDistance(), 1, 2);
 			//LCD.drawString("rate = " + DE.GetRate(), 1, 3);
 			LCD.drawString("time = " + DE.GetTime(), 1, 3);
+			
+			LCD.drawString("Red = " + DE.GetRed(), 1, 4);
+			LCD.drawString("Green = " + DE.GetGreen(), 1, 5);
+			LCD.drawString("Blue = " + DE.GetBlue(), 1, 6);
+
+
+			
 			Delay.msDelay(10);
 			LCD.refresh();
 		}
