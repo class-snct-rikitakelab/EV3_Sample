@@ -64,51 +64,65 @@ public class Motors extends Thread{
 			
 			switch(stage){
 			
-			//will follow the line and continue trying to find it unless little while has passed on white.
-			case 1:
-				//this moves code to stage 2 if only white is detected for a while
-				if(DEObj.GetTime() > 5000 && DEObj.GetFollow()){ 
-					stage=2;
-				}
+				//will follow the line and continue trying to find it unless little while has passed on white.
+				case 1:
+					//this moves code to stage 2 if only white is detected for a while
+					if(DEObj.GetTime() > 5000 && DEObj.GetFollow()){ 
+						stage=2;
+					}
+					
+					//calculations for the turn is calculated here
+					correction = kp * ( midpoint - value);
+					turn = (int)(correction*100);
+					left = forward - turn;
+					right = forward + turn;
+					break;
+					
+					// will search for non-white line
+				case 2:
+					//if no longer on only white, will go to stage 3
+					if(value < (DEObj.GetMiddle() * 1.2)){
+						stage = 3;
+					}
+					//starts turning to left
+					value = midpoint*0.7;
+					
+					//calculations for the turn is calculated here
+					correction = kp * ( midpoint - value);
+					turn = (int)(correction*100);
+					left = forward - turn;
+					right = forward + turn;
+					break;
+					
+					// only stops it for a little while
+				case 3:
+					left = 0;
+					right = 0;
+					Forward(left,right);
+					Delay.msDelay(500);
+					stage = 4;
 				
-				//calculations for the turn is calculated here
-				correction = kp * ( midpoint - value);
-				turn = (int)(correction*100);
-				left = forward - turn;
-				right = forward + turn;
-				break;
-				
-				// will search for non-white line
-			case 2:
-				//if no longer on only white, will go to stage 3
-				if(value < (DEObj.GetMiddle() * 1.2)){
-					stage = 3;
-				}
-				//starts turning to left
-				value = midpoint*0.7;
-				
-				//calculations for the turn is calculated here
-				correction = kp * ( midpoint - value);
-				turn = (int)(correction*100);
-				left = forward - turn;
-				right = forward + turn;
-				break;
-				
-				// only stops it for a little while
-			case 3:
-				left = 0;
-				right = 0;
-				Delay.msDelay(500);
-				stage = 4;
-			
-			//will try to find the next color.
-			case 4:
-				
-				break;
+				//will try to find the colors.
+				case 4:
+					
+					//calculations for the turn is calculated here
+					correction = kp * ( midpoint - value);
+					turn = (int)(correction*100);
+					if(DEObj.GetFollow()){
+						left = (forward - turn);
+						right = (forward + turn);
+					}
+					else{
+						left = (forward + turn);
+						right = (forward - turn);
+					}
+					
+					break;
 			}
 
-			LCD.drawString("stage = " + stage, 1, 6);
-			LCD.refresh();
+			//LCD.drawString("stage = " + stage, 1, 6);
+			//LCD.refresh();
+			
 			//makes the robot move
 			Forward(left,right);
 
