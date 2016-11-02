@@ -33,12 +33,14 @@ public class Sensors extends Thread{
 	
 	public void run(){
 		
+		float colorValue;
+		
 		SensorMode rate = (SensorMode) gyroSensor.getRateMode();
 		
 		SensorMode sonic = sonicSensor.getMode(0);
 		float sValue[] = new float[sonic.sampleSize()];
 		
-		SensorMode color = colorSensor.getMode(1);
+		SensorMode color = colorSensor.getMode(2);
 		float cValue[] = new float[color.sampleSize()];
 		
 		sampleGyro = new float[rate.sampleSize()];
@@ -53,23 +55,25 @@ public class Sensors extends Thread{
 			sonic.fetchSample(sValue,0);
 			color.fetchSample(cValue, 0);
 			
-			//determines which side is followed
-			if(DEObj.GetFollow()){
-				cValue[0]=cValue[0]*(-1);
-			}
+			
+			colorValue = (cValue[0]+cValue[1]+cValue[2]);
+			//negates the total RGB values
+			//colorValue = colorValue * (-1);
 			
 			//puts the values to DataExchange class
 			DEObj.AddRate(sampleGyro[0]);
-			DEObj.setColor(((cValue[0] - min_api)/(max_api - min_api))*(min-max));
+			DEObj.setColor((((colorValue*(-1)) - min_api)/(max_api - min_api))*(min-max));
 			DEObj.SetDistance(sValue[0]);
-			
-			//negates the color value if its negative
-			if(cValue[0] < 0){
-				cValue[0]=cValue[0]*(-1);
-			}
-			
+			DEObj.SetRGB(cValue);
+			/*
+			DEObj.SetRed(cValue[0]);
+			DEObj.SetGreen(cValue[1]);
+			DEObj.SetBlue(cValue[2]);
+			*/
+
+
 			//if the robot is on white, will increase the time. Will reset the time if its not
-			if(cValue[0] > (DEObj.GetMiddle() * 1.2) ){
+			if(colorValue > (DEObj.GetMiddle() * 1.1) ){
 				DEObj.IncreaseTime();
 			}
 			else{
