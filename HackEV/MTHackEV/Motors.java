@@ -26,6 +26,41 @@ public class Motors extends Thread{
 	
 	public void SetWhite(){
 		white = DEObj.getColor();
+		}
+	
+	public void Turn(int degrees){
+		
+		if(degrees>0){
+			Forward(50,0);
+		}
+		else{
+			Forward(0,50);
+		}
+		
+		Delay.msDelay(degrees);
+	}
+	
+	public String GetColor(){
+		
+		float[] RGB = new float[3]; //Red = 0, Green = 1, Blue = 2
+		
+		//get each color
+		RGB[0] = DEObj.GetRed();
+		RGB[1] = DEObj.GetGreen();
+		RGB[2] = DEObj.GetBlue();
+		
+		if(RGB[0]*0.8 > RGB[1] && RGB[0]*0.8 > RGB[2]){ //if red color is the biggest
+			return "red";
+		}
+		else if(RGB[1]*0.8 > RGB[0] && RGB[1]*0.8 > RGB[2]){ //if green color is the biggest
+			return "green";
+		}
+		else if(RGB[2] > RGB[0] && RGB[2] > RGB[1]){ //if blue is biggest
+			return "blue";
+		}
+		
+		return "none";
+		
 	}
 
 	public void MotorInit(){
@@ -38,7 +73,7 @@ public class Motors extends Thread{
 		
 		middleMotor.controlMotor(0, 0);
 		middleMotor.resetTachoCount();
-		
+				
 	}
 	
 	private void Forward(int left, int right){
@@ -51,10 +86,10 @@ public class Motors extends Thread{
 		
 		// must 0.06 , valk = 0.6
 		
-		double correction=0,value = 0,kp = 1.1;
+		double correction=0,value = 0,kp = 1.1; //kp affects the turning when following the line
 		double midpoint = (white - black ) / 2 + black;
 		DEObj.SetMiddleColor(midpoint);
-		int right=0,left=0,forward=38, turn=0, stage=1;
+		int right=0,left=0,forward=38, turn=0, stage=1, rightTurns = 0, straight = 0;
 		
 		DEObj.ResetTime(); //to make sure that there is no time counted
 		
@@ -97,13 +132,42 @@ public class Motors extends Thread{
 					// only stops it for a little while
 				case 3:
 					left = 0;
-					right = 0;
+					right = 50;
 					Forward(left,right);
 					Delay.msDelay(500);
 					stage = 4;
 				
 				//will try to find the colors.
 				case 4:
+					String color = GetColor();
+					LCD.drawString("text = " + color, 1, 4);
+					LCD.drawString("rightTurns = " + rightTurns, 1, 5);
+					LCD.refresh();
+					
+					if(color=="red" || color == "blue"){
+						
+						if(rightTurns<1){
+							left = 50;
+							right = 20;
+							Forward(left,right);
+							Delay.msDelay(1000);
+							rightTurns++;
+						}
+						else if(straight > 2){
+							left=50;
+							right=50;
+							Forward(left,right);
+							Delay.msDelay(1500);
+						}
+						else{
+							left = 45;
+							right = 50;
+							Forward(left,right);
+							Delay.msDelay(1000);
+							//rightTurns--;
+							straight++;
+						}
+					}
 					
 					//calculations for the turn is calculated here
 					correction = kp * ( midpoint - value);
