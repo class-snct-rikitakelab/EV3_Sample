@@ -102,13 +102,18 @@ public class Motors extends Thread{
 				//will follow the line and continue trying to find it unless little while has passed on white.
 				case 1:
 					//this moves code to stage 2 if only white is detected for a while
-					if(DEObj.GetTime() > 5000 && DEObj.GetFollow()){ 
+					if(DEObj.GetTime() > 6000 && DEObj.GetFollow()){ 
 						stage=2;
 					}
 					
 					//calculations for the turn is calculated here
 					correction = kp * ( midpoint - value);
 					turn = (int)(correction*100);
+					if(turn < -5){
+						turn = -5;
+					}
+					LCD.drawString("turn = " + turn, 1, 5);
+					LCD.refresh();
 					left = forward - turn;
 					right = forward + turn;
 					break;
@@ -125,26 +130,28 @@ public class Motors extends Thread{
 					//calculations for the turn is calculated here
 					correction = kp * ( midpoint - value);
 					turn = (int)(correction*100);
-					left = forward - turn;
+					turn = 10;
+					left = forward + (turn-10);
 					right = forward + turn;
 					break;
 					
-					// only stops it for a little while
+					// stops and turns left in order go to the right direction
 				case 3:
 					left = 0;
 					right = 50;
 					Forward(left,right);
-					Delay.msDelay(500);
+					Delay.msDelay(2800);
 					stage = 4;
 				
 				//will try to find the colors.
 				case 4:
 					String color = GetColor();
-					LCD.drawString("text = " + color, 1, 4);
+					LCD.drawString("text = " + color + "  ", 1, 4);
 					LCD.drawString("rightTurns = " + rightTurns, 1, 5);
+					LCD.drawString("straights = " + straight, 1, 6);
 					LCD.refresh();
 					
-					if(color=="red" || color == "blue"){
+					if(color=="red" || color=="blue"){
 						
 						if(rightTurns<1){
 							left = 50;
@@ -157,7 +164,9 @@ public class Motors extends Thread{
 							left=50;
 							right=50;
 							Forward(left,right);
-							Delay.msDelay(1500);
+							Delay.msDelay(2500);
+							stage = 5;
+							LCD.clear();
 						}
 						else{
 							left = 45;
@@ -170,7 +179,7 @@ public class Motors extends Thread{
 					}
 					
 					//calculations for the turn is calculated here
-					correction = kp * ( midpoint - value);
+					correction = (kp-0.1) * ( midpoint - value);
 					turn = (int)(correction*100);
 					if(DEObj.GetFollow()){
 						left = (forward - turn);
@@ -181,6 +190,14 @@ public class Motors extends Thread{
 						right = (forward - turn);
 					}
 					
+					break;
+					
+				case 5:
+					
+					correction = kp * ( midpoint - value);
+					turn = (int)(correction*100);
+					left = forward - turn;
+					right = forward + turn;
 					break;
 			}
 
