@@ -1,4 +1,4 @@
-package pwm;
+package motor;
 
 import lejos.hardware.Button;
 import lejos.hardware.lcd.LCD;
