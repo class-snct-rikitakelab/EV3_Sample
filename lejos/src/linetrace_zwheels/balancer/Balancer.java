@@ -1,4 +1,4 @@
-﻿/**
+/**
 ******************************************************************************
 ** FILE NAME : Balancer.java
 **
@@ -66,7 +66,7 @@ package jp.etrobo.ev3.balancer;
 public class Balancer {
 	static float KP = (float) 80.0;
 	static float KI = (float) 100.0;
-	static float KD = (float) 300.0;
+	static float KD = (float) 1000.0;
 	static float diff[] = new float[2];
 	static float integral;
 
@@ -489,7 +489,7 @@ public class Balancer {
     	
     	return math_limit(p + i + d,-100.0F,100.0F);
     }
-	//上限、下限にあわせる
+
 	private static float math_limit(float f, float g, float h) {
 		// TODO 自動生成されたメソッド・スタブ
 		if(f>h)

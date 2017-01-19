@@ -5,6 +5,7 @@
  */
 package jp.etrobo.ev3.sample;
 
+import lejos.hardware.Button;
 import lejos.hardware.lcd.LCD;
 import lejos.utility.Delay;
 import java.util.concurrent.Executors;
@@ -98,7 +99,7 @@ public class EV3waySample {
     public void stop () {
         if (futureDrive != null) {
             futureDrive.cancel(true);
-            body.close();
+            //body.close();
         }
         if (futureRemote != null) {
             futureRemote.cancel(true);
@@ -116,22 +117,68 @@ public class EV3waySample {
     /**
      * メイン
      */
+    
+    private void reset()
+    {
+    	//body = new EV3way();
+        body.idling();
+        body.reset();
+        touchPressed = false;
+
+        scheduler  = Executors.newScheduledThreadPool(2);
+        driveTask  = new EV3wayTask(body);
+        remoteTask = new RemoteTask();
+        futureRemote = scheduler.scheduleAtFixedRate(remoteTask, 0, 100, TimeUnit.MILLISECONDS);
+        
+    }
+    
     public static void main(String[] args) {
-        LCD.drawString("Please Wait...  ", 0, 4);
-        EV3waySample program = new EV3waySample();
+    	EV3waySample program;
+    	
+	    LCD.drawString("Please Wait...  ", 0, 4);
+	    program = new EV3waySample();
+	    int a = 0;
+	    while(true)
+	    {
+	    	
+	        // スタート待ち
+	        LCD.drawString("Touch to START", 0, 4);
+	        while (program.waitForStart()) {
+	            Delay.msDelay(100);
+	        }
+	
+	        LCD.drawString("Running       ", 0, 4);
+	        program.start();
+	        while (program.waitForStop()) {
+	            Delay.msDelay(100);
+	        }
 
-        // スタート待ち
-        LCD.drawString("Touch to START", 0, 4);
-        while (program.waitForStart()) {
-            Delay.msDelay(100);
-        }
-
-        LCD.drawString("Running       ", 0, 4);
-        program.start();
-        while (program.waitForStop()) {
-            Delay.msDelay(100);
-        }
-        program.stop();
-        program.shutdown();
+	        program.stop();
+	        program.shutdown();
+	        LCD.drawString("ENTER ・・・ continue\n ESCAPE ・・・ end", 0, 4);
+	        while(!Button.ENTER.isDown())
+		    {
+	        	
+	        	if(Button.ESCAPE.isDown())
+	        	{
+	        		a = 1;
+	        		break;
+	        	}
+		    }
+	        if(a == 1)
+	        {
+	        	break;
+	        }
+	        LCD.drawString("Please Wait...  ", 0, 4);
+	        program.reset();
+	        
+	        
+		    
+	        
+	    }
+	        
+	        //program.shutdown();
+    	
+    	
     }
 }
