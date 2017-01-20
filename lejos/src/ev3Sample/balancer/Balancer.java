@@ -20,7 +20,7 @@
 ** VERSION : 1.893
 ** HISTORY : y_yama - Tue Sep 25 11:37:09 2007
 ** takashic - Sun Sep 28 17:50:53 2008
-** INACHI Minoru - Thu Apr 16 00:10:24 2015
+** INACHI Minoru - Thu Apr 16 00:10:24 2015 
 ** ported from balancer.c
 **
 ** Copyright (c) 2009-2016 MathWorks, Inc.
@@ -50,19 +50,27 @@
 ** バージョン : 1.893
 ** 履歴 : y_yama - Tue Sep 25 11:37:09 2007
 ** takashic - Sun Sep 28 17:50:53 2008
-** INACHI Minoru - Thu Apr 16 00:10:24 2015
+** INACHI Minoru - Thu Apr 16 00:10:24 2015 
 ** balancer.cを移植
 **
 ** Copyright (c) 2009-2016 MathWorks, Inc.
 ** All rights reserved.
 ******************************************************************************
 **/
-package ev3Sample.balancer;
+package jp.etrobo.ev3.balancer;
+
 
 /**
  * Balancer クラス
  */
 public class Balancer {
+	static float KP = (float) 80.0;
+	static float KI = (float) 200.0;
+	static float KD = (float) 200.0;
+	static float diff[] = new float[2];
+	static float integral;
+
+	
     /*
      * * ローパスフィルタ係数(左右車輪の平均回転角度用)
     */
@@ -289,10 +297,10 @@ public class Balancer {
      * EV3way-GSバランス制御メソッド。
      * 本メソッド実行後、getPwmL および getPwmR で左右モータPMW出力値を取得します。
      *
-     * このメソッドは4msec周期で起動されることを前提に設計されています。
+     * このメソッドは4msec周期で起動されることを前提に設計されています。 
      * 左右の車輪駆動モータは個体差により、同じPWM出力を与えても回転数が異なる場合が
      * あります。その場合は別途補正機能を追加する必要があります。
-     *
+     * 
      * @param args_cmd_forward
      *            前進/後進命令。100(前進最大値)～-100(後進最大値)
      * @param args_cmd_turn
@@ -446,7 +454,7 @@ public class Balancer {
 
     /**
      * 左モータPMW出力値取得
-     *
+     * 
      * @return 100(前進最大値)～-100(後進最大値)
      */
 	/* left motor PWM output */
@@ -456,7 +464,7 @@ public class Balancer {
 
     /**
      * 右モータPMW出力値取得
-     *
+     * 
      * @return 100(前進最大値)～-100(後進最大値)
      */
     /* right motor PWM output */
@@ -468,4 +476,30 @@ public class Balancer {
     private static final float rt_SATURATE(float sig, float ll, float ul) {
         return (((sig) >= (ul)) ? (ul) : (((sig) <= (ll)) ? (ll) : (sig)));
     }
+    public static float pid(float sensor_val,float target_val)
+    {
+    	float p,i,d;
+    	diff[0] = diff[1];
+    	diff[1] = sensor_val - target_val;
+    	integral += (diff[1] + diff[0]) / 2.0 * EXEC_PERIOD;
+    	
+    	p = KP * diff[1];
+    	i = KI * integral;
+    	d = KD * (diff[1] - diff[0]) / EXEC_PERIOD;
+    	
+    	return math_limit(p + i + d,-100.0F,100.0F);
+    }
+
+	private static float math_limit(float f, float g, float h) {
+		// TODO 自動生成されたメソッド・スタブ
+		if(f>h)
+		{
+			f = h;
+		}
+		else if(f<g)
+		{
+			f = g;
+		}
+		return f;
+	}
 }

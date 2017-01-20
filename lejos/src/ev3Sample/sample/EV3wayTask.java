@@ -3,7 +3,7 @@
  *  Created on: 2016/02/11
  *  Copyright (c) 2016 Embedded Technology Software Design Robot Contest
  */
-package ev3Sample.sample;
+package jp.etrobo.ev3.sample;
 
 /**
  * EV3way を制御するタスク。

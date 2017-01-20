@@ -3,15 +3,15 @@
  *  Created on: 2016/02/11
  *  Copyright (c) 2016 Embedded Technology Software Design Robot Contest
  */
-package ev3Sample.sample;
+package jp.etrobo.ev3.sample;
 
+import lejos.hardware.Button;
+import lejos.hardware.lcd.LCD;
+import lejos.utility.Delay;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
-import lejos.hardware.lcd.LCD;
-import lejos.utility.Delay;
 
 /**
  * 2輪倒立振子ライントレースロボットの leJOS EV3 用 Java サンプルプログラム。
@@ -83,7 +83,7 @@ public class EV3waySample {
         if (remoteTask.checkRemoteCommand(RemoteTask.REMOTE_COMMAND_STOP)) { // PC で 's' キー押されたら走行終了
             res = false;
         }
-        return res;
+        return res;	
     }
 
     /**
@@ -99,7 +99,9 @@ public class EV3waySample {
     public void stop () {
         if (futureDrive != null) {
             futureDrive.cancel(true);
-            body.close();
+            //bodyを閉じずにモーターを止めるため、resetを行う（約4秒かかった）
+            body.reset();
+            //body.close();
         }
         if (futureRemote != null) {
             futureRemote.cancel(true);
@@ -117,22 +119,74 @@ public class EV3waySample {
     /**
      * メイン
      */
+    
+    private void reset()
+    {
+    	//body = new EV3way();
+        body.idling();
+        body.reset();
+        touchPressed = false;
+
+        scheduler  = Executors.newScheduledThreadPool(2);
+        driveTask  = new EV3wayTask(body);
+        remoteTask = new RemoteTask();
+        futureRemote = scheduler.scheduleAtFixedRate(remoteTask, 0, 100, TimeUnit.MILLISECONDS);
+        
+    }
+    
     public static void main(String[] args) {
-        LCD.drawString("Please Wait...  ", 0, 4);
-        EV3waySample program = new EV3waySample();
-
-        // スタート待ち
-        LCD.drawString("Touch to START", 0, 4);
-        while (program.waitForStart()) {
-            Delay.msDelay(100);
-        }
-
-        LCD.drawString("Running       ", 0, 4);
-        program.start();
-        while (program.waitForStop()) {
-            Delay.msDelay(100);
-        }
-        program.stop();
-        program.shutdown();
+    	EV3waySample program;
+    	
+	    LCD.drawString("Please Wait...  ", 0, 4);
+	    program = new EV3waySample();
+	    int a = 0;
+	    while(true)
+	    {
+	    	
+	        // スタート待ち
+	        LCD.drawString("Touch to START", 0, 4);
+	        while (program.waitForStart()) {
+	            Delay.msDelay(100);
+	        }
+	
+	        LCD.drawString("Running       ", 0, 4);
+	        program.start();
+	        while (program.waitForStop()) {
+	            Delay.msDelay(100);
+	        }
+	        Delay.msDelay(100);
+	        program.stop();
+	        program.shutdown();
+	        LCD.drawString("ENTER continue", 0, 4);
+	        LCD.drawString("ESCAPE  end", 0, 5);
+	        
+	        //続けるか終了するか選択（パラメータの変更もここでおこなう予定）
+	        while(!Button.ENTER.isDown())
+		    {
+	        	
+	        	if(Button.ESCAPE.isDown())
+	        	{
+	        		a = 1;
+	        		break;
+	        	}
+		    }
+	        if(a == 1)
+	        {
+	        	break;
+	        }
+	        LCD.drawString("                  ", 0, 4);
+	        LCD.drawString("              ", 0, 5);
+	        LCD.drawString("Please Wait...  ", 0, 4);
+	        //bodyを生成しないで、初期化を行う
+	        program.reset();
+	        
+	        
+		    
+	        
+	    }
+	        
+	        //program.shutdown();
+    	
+    	
     }
 }

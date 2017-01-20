@@ -3,13 +3,13 @@
  *  Created on: 2016/02/11
  *  Copyright (c) 2016 Embedded Technology Software Design Robot Contest
  */
-package ev3Sample.sample;
+package jp.etrobo.ev3.sample;
 
-import ev3Sample.balancer.Balancer;
+import jp.etrobo.ev3.balancer.Balancer;
 import lejos.hardware.Battery;
 import lejos.hardware.port.BasicMotorPort;
-import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.Port;
+import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.port.TachoMotorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
@@ -172,12 +172,15 @@ public class EV3way {
             turn = 0.0F;
         } else {
             forward = 50.0F;  // 前進命令
-            if (getBrightness() > THRESHOLD) {
+            turn = Balancer.pid(getBrightness(),THRESHOLD);
+            /*if (getBrightness() > THRESHOLD) {
                 turn = 50.0F;  // 右旋回命令
             } else {
                 turn = -50.0F; // 左旋回命令
             }
+            */
         }
+        
 
         float gyroNow = getGyroValue();                 // ジャイロセンサー値
         int thetaL = motorPortL.getTachoCount();        // 左モータ回転角度
@@ -191,7 +194,7 @@ public class EV3way {
     /**
      * 走行体完全停止用モータの角度制御
      * @param angle モータ目標角度[度]
-     */
+     */	
     public void controlTail(int angle) {
         float pwm = (float)(angle - motorPortT.getTachoCount()) * P_GAIN; // 比例制御
         // PWM出力飽和処理

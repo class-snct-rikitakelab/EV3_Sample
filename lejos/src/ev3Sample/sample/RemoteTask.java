@@ -3,7 +3,7 @@
  *  Created on: 2016/02/11
  *  Copyright (c) 2016 Embedded Technology Software Design Robot Contest
  */
-package ev3Sample.sample;
+package jp.etrobo.ev3.sample;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -54,7 +54,8 @@ public class RemoteTask implements Runnable {
                 }
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+        	//エラーがでたため消去
+            //ex.printStackTrace();
             server = null;
             dataInputStream = null;
         }
